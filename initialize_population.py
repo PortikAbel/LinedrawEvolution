@@ -58,6 +58,23 @@ def create_individual_2(num_lines, start_points, max_line_length=10):
     return np.stack((start_points, end_points), axis=1).astype(int)
 
 
-def init_population(population_size, create_individual=create_individual_1, **kwargs):
+def create_individual_3(num_lines, target):
+    """
+    Creates an individual by selecting the endpoints of lines from the active pixels of the target image.
+
+    :param int num_lines: The number of lines that constitute the image
+    :param target_img: The image we want to approximate
+    """
+
+    num_white_points = target.shape[0]
+    indices = np.random.choice(num_white_points, (2, num_lines), replace=False)
+
+    start_points = target[indices[0]]
+    end_points = target[indices[1]]
+
+    return np.stack((start_points, end_points), axis=1)
+
+
+def init_population(population_size, create_individual=create_individual_3, **kwargs):
 
     return [create_individual(**kwargs) for _ in range(population_size)]

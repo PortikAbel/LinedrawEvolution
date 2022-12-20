@@ -1,9 +1,12 @@
 import os
 
 population_size = 50
-num_epochs      = 50
+num_epochs      = 20
 line_count      = 30
 
-image_name = "balls.jpg"
-target_image_path = os.path.join("input", image_name)
-result_image_path = os.path.join("output", image_name)
+image_shape = (480, 480)
+
+image_name = "linedraw.jpg"
+
+input_dir = "input"
+output_dir = "output"

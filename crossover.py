@@ -1,15 +1,18 @@
 import numpy as np
 
+from config import population_size
+
 
 def crossover_operator_1(individual_1, individual_2):
 
-    i1_1, i1_2 = np.split(individual_1, 2)
-    i2_1, i2_2 = np.split(individual_2, 2)
+    cross_point = np.random.randint(0, individual_1.shape[0])
+    return np.concatenate((
+        np.vstack((individual_1[:cross_point], individual_2[cross_point:])), 
+        np.vstack((individual_2[:cross_point], individual_1[cross_point:]))
+    ))
 
-    return np.vstack((i1_1, i2_2)), np.vstack((i2_1, i1_2))
 
-
-def crossover(population, p=.5, operator=crossover_operator_1, selector=None):
+def crossover(population, p=.5, operator=crossover_operator_1):
     """
 
     This function selects individuals and combines them using a crossover operator
@@ -23,23 +26,12 @@ def crossover(population, p=.5, operator=crossover_operator_1, selector=None):
 
     """
 
-    if selector is not None:
-        index = selector(population)
-    else:
-        index = np.random.choice(range(len(population)),
-                                 size=int(len(population) * p),
-                                 replace=False)
+    probabilities = np.random.random(population_size // 2)
+    subset = probabilities > p
+    pairs = np.random.choice(population_size, (population_size // 2, 2), replace=False)
+    pairs = pairs[subset]
 
-    i1 = np.random.choice(index, size=len(index)//2, replace=False)
-    i2 = np.setdiff1d(index, i1)
+    left_operands = population[pairs[:, 0]]
+    right_operands = population[pairs[:, 1]]
 
-    subset_1 = population[i1]
-    subset_2 = population[i2]
-
-    crossed_population = []
-
-    for i, j in zip(subset_1, subset_2):
-        ni = operator(i, j)
-        crossed_population.extend(ni)
-
-    return np.asarray(crossed_population)
+    return operator(left_operands, right_operands)

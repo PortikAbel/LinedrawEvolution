@@ -4,9 +4,10 @@ from initialize_population import init_population
 from mutation import mutation
 from crossover import crossover
 from fitness import fitness
+from util import target_img_to_sparse
 
 
-def run_genetic_algorithm(n, N, m, target, delta=10, epsilon=100):
+def run_genetic_algorithm(n, N, m, target_img, delta=10, epsilon=100):
     """
     This function runs a genetic algorithm until N iterations is reached
     or best fitness value is smaller than epsilon
@@ -22,30 +23,29 @@ def run_genetic_algorithm(n, N, m, target, delta=10, epsilon=100):
 
     """
 
-    best_fitness = []
-    population = np.asarray(init_population(
-        n, num_lines=m, img_shape=target.shape, max_line_length=10
-    ))
+    best_individuals = []
+    target = target_img_to_sparse(target_img)
+    population = np.asarray(init_population(n, num_lines=m, target=target))
 
     i = 0
     while i < N:
         i += 1
-        print(i)
+        print(f"generation {i}")
 
-        cp = crossover(population)
-        up = np.concatenate((population, cp), axis=0)
+        cross_population = crossover(population)
+        up = np.concatenate((population, cross_population), axis=0)
 
-        _ = mutation(up)
+        _ = mutation(up, target)
 
         error, sort_index = fitness(up, target)
 
         print(error)
 
         best = error[sort_index[0]]
-        best_fitness.append(best)
+        best_individuals.append(population[sort_index[0]].copy())
 
         if best < epsilon:
             break
         population = up[sort_index][:n]
 
-    return population
+    return population, best_individuals
