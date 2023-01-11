@@ -25,7 +25,7 @@ if __name__=="__main__":
     pop, best_individuals = run_genetic_algorithm(population_size, num_epochs, line_count, target)
     img = cv2.polylines(current, pop[0], False, 255)
     
-    cv2.imwrite(os.path.join(output_dir, image_name), cv2.cvtColor(img, cv2.COLOR_GRAY2BGR) * (0, 255, 0) + cv2.cvtColor(target, cv2.COLOR_GRAY2BGR))
+    cv2.imwrite(os.path.join(output_dir, image_name), cv2.cvtColor(img, cv2.COLOR_GRAY2BGR) * (0, 255, 0) + cv2.cvtColor(target, cv2.COLOR_GRAY2BGR) * (255, 0, 0))
     for i, individual in enumerate(best_individuals):
         img = cv2.polylines(current, individual, False, 255)
-        cv2.imwrite(os.path.join(output_dir, f"{i}_{image_name}"), cv2.cvtColor(img, cv2.COLOR_GRAY2BGR) * (0, 255, 0) + cv2.cvtColor(target, cv2.COLOR_GRAY2BGR))
+        cv2.imwrite(os.path.join(output_dir, f"{i}_{image_name}"), cv2.cvtColor(img, cv2.COLOR_GRAY2BGR) * (0, 255, 0) + cv2.cvtColor(target, cv2.COLOR_GRAY2BGR) * (255, 0, 0))

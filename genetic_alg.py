@@ -24,8 +24,8 @@ def run_genetic_algorithm(n, N, m, target_img, delta=10, epsilon=100):
     """
 
     best_individuals = []
-    target = target_img_to_sparse(target_img)
-    population = np.asarray(init_population(n, num_lines=m, target=target))
+    target_sparse = target_img_to_sparse(target_img)
+    population = np.asarray(init_population(n, num_lines=m, target_sparse=target_sparse))
 
     i = 0
     while i < N:
@@ -35,17 +35,17 @@ def run_genetic_algorithm(n, N, m, target_img, delta=10, epsilon=100):
         cross_population = crossover(population)
         up = np.concatenate((population, cross_population), axis=0)
 
-        _ = mutation(up, target)
+        _ = mutation(up, target_sparse)
 
-        error, sort_index = fitness(up, target)
+        error, sort_index = fitness(up, target_img)
 
         print(error)
 
         best = error[sort_index[0]]
-        best_individuals.append(population[sort_index[0]].copy())
+        best_individuals.append(up[sort_index[0]].copy())
 
         if best < epsilon:
             break
-        population = up[sort_index][:n]
+        population = up[sort_index[:n]]
 
     return population, best_individuals

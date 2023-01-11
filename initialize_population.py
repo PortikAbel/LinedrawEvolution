@@ -58,7 +58,7 @@ def create_individual_2(num_lines, start_points, max_line_length=10):
     return np.stack((start_points, end_points), axis=1).astype(int)
 
 
-def create_individual_3(num_lines, target):
+def create_individual_3(num_lines, target_sparse):
     """
     Creates an individual by selecting the endpoints of lines from the active pixels of the target image.
 
@@ -66,11 +66,11 @@ def create_individual_3(num_lines, target):
     :param target_img: The image we want to approximate
     """
 
-    num_white_points = target.shape[0]
+    num_white_points = target_sparse.shape[0]
     indices = np.random.choice(num_white_points, (2, num_lines), replace=False)
 
-    start_points = target[indices[0]]
-    end_points = target[indices[1]]
+    start_points = target_sparse[indices[0]]
+    end_points = target_sparse[indices[1]]
 
     return np.stack((start_points, end_points), axis=1)
 
