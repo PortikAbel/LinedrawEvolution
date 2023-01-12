@@ -31,7 +31,9 @@ def error_function_2(individual, target):
     return np.array(negative_scores) - np.array(positive_scores)
 
 def error_function_3(individual, target):
-
+    """
+    The difference of an individual by
+    """
     scores = []
     white = target.max()
 
@@ -57,12 +59,19 @@ def error_function_3(individual, target):
         svd_2 = np.linalg.svd(target_crop)
         svd_2 = np.concatenate((svd_2[0].reshape(-1), svd_2[2].reshape(-1)))
 
-        scores.append(np.sum(np.abs(np.subtract(svd_1, svd_2))))
+        scores.append(np.average(np.abs(np.subtract(svd_1, svd_2))))
 
     return scores
 
 def fitness(population, target, error_function=error_function_3):
+    """
+    Calculating the fitness of each individual in a population
 
+    Parameters
+    ----------
+    :param numpy.ndarray population: The array of coordinates of endpoints of lines of an individual
+    :param numpy.ndarray target: The target matrix approximated by discrete lines
+    """
     error = np.array(list(map(
         lambda individual: sum(error_function(individual, target)), population
     )))

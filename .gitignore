@@ -1,3 +1,7 @@
+#notebooks
+
+*.ipynb
+
 # image files
 
 input/

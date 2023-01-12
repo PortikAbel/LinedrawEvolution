@@ -3,10 +3,10 @@ import numpy as np
 from config import population_size
 
 
-def crossover_operator_1(individual_1, individual_2):
-
+def crossover_operator_1(individuals):
+    individual_1, individual_2 = individuals
     cross_point = np.random.randint(0, individual_1.shape[0])
-    return np.concatenate((
+    return np.array((
         np.vstack((individual_1[:cross_point], individual_2[cross_point:])), 
         np.vstack((individual_2[:cross_point], individual_1[cross_point:]))
     ))
@@ -34,4 +34,4 @@ def crossover(population, p=.5, operator=crossover_operator_1):
     left_operands = population[pairs[:, 0]]
     right_operands = population[pairs[:, 1]]
 
-    return operator(left_operands, right_operands)
+    return np.concatenate(list(map(operator, zip(left_operands, right_operands))))

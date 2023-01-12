@@ -7,7 +7,7 @@ from fitness import fitness
 from util import target_img_to_sparse
 
 
-def run_genetic_algorithm(n, N, m, target_img, delta=10, epsilon=100):
+def run_genetic_algorithm(n, N, m, target_img, delta=10, epsilon=1e-2):
     """
     This function runs a genetic algorithm until N iterations is reached
     or best fitness value is smaller than epsilon
@@ -32,10 +32,10 @@ def run_genetic_algorithm(n, N, m, target_img, delta=10, epsilon=100):
         i += 1
         print(f"generation {i}")
 
-        cross_population = crossover(population)
+        cross_population = crossover(population, .8)
         up = np.concatenate((population, cross_population), axis=0)
 
-        _ = mutation(up, target_sparse)
+        _ = mutation(up, target_sparse, .05)
 
         error, sort_index = fitness(up, target_img)
 
