@@ -72,9 +72,7 @@ def fitness(population, target, error_function=error_function_3):
     :param numpy.ndarray population: The array of coordinates of endpoints of lines of an individual
     :param numpy.ndarray target: The target matrix approximated by discrete lines
     """
-    error = np.array(list(map(
+    
+    return np.array(list(map(
         lambda individual: sum(error_function(individual, target)), population
     )))
-    sort_index = np.argsort(error)
-
-    return error, sort_index

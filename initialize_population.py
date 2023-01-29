@@ -77,4 +77,4 @@ def create_individual_3(num_lines, target_sparse):
 
 def init_population(population_size, create_individual=create_individual_3, **kwargs):
 
-    return [create_individual(**kwargs) for _ in range(population_size)]
+    return np.asarray([create_individual(**kwargs) for _ in range(population_size)])

@@ -1,13 +1,16 @@
+import os
+import sys
 import numpy as np
 
 from initialize_population import init_population
 from mutation import mutation
 from crossover import crossover
 from fitness import fitness
+from selection import selection
 from util import target_img_to_sparse
 
 
-def run_genetic_algorithm(n, N, m, target_img, delta=10, epsilon=1e-2):
+def run_genetic_algorithm(n, N, m, target_img, log_dir, error_log=sys.stdout.buffer, epsilon=1e-2):
     """
     This function runs a genetic algorithm until N iterations is reached
     or best fitness value is smaller than epsilon
@@ -25,27 +28,46 @@ def run_genetic_algorithm(n, N, m, target_img, delta=10, epsilon=1e-2):
 
     best_individuals = []
     target_sparse = target_img_to_sparse(target_img)
-    population = np.asarray(init_population(n, num_lines=m, target_sparse=target_sparse))
+    population = init_population(n, num_lines=m, target_sparse=target_sparse)
 
     i = 0
     while i < N:
         i += 1
-        print(f"generation {i}")
+        generation_dir = os.path.join(log_dir, f"gen_{i}")
+        os.makedirs(generation_dir, exist_ok=True)
 
         cross_population = crossover(population, .8)
         up = np.concatenate((population, cross_population), axis=0)
 
         _ = mutation(up, target_sparse, .05)
+        np.save(
+            os.path.join(generation_dir, f"offspring_gen_{i}.npy"),
+            up,
+        )
 
-        error, sort_index = fitness(up, target_img)
+        error = fitness(up, target_img)
+        np.savetxt(
+            error_log,
+            error.reshape(1, error.shape[0]),
+            delimiter=";",
+            fmt="%.10f",
+        )
+        error_log.flush()
 
-        print(error)
+        best_idx = error.argmin()
+        np.save(
+            os.path.join(generation_dir, f"best_gen_{i}.npy"),
+            up[best_idx],
+        )
+        best_individuals.append(up[best_idx].copy())
 
-        best = error[sort_index[0]]
-        best_individuals.append(up[sort_index[0]].copy())
-
-        if best < epsilon:
+        if error[best_idx] < epsilon:
             break
-        population = up[sort_index[:n]]
+        population = selection(up, error)
+        np.save(
+            os.path.join(generation_dir, f"selection_gen_{i}.npy"),
+            population,
+        )
+
 
     return population, best_individuals
