@@ -1,6 +1,6 @@
 import os
 
-from genetic_alg import run_genetic_algorithm
+from genetic_alg import run_genetic_algorithm, run_genetic_algorithm_2
 from config import (
     population_size,
     num_epochs,
@@ -28,7 +28,7 @@ if __name__=="__main__":
     os.makedirs(log_dir, exist_ok=True)
     with open(os.path.join(log_dir, "error.csv"), "w") as error_log:
 
-        pop, best_individuals = run_genetic_algorithm(
+        pop, best_individuals = run_genetic_algorithm_2(
             population_size,
             num_epochs,
             line_count,
@@ -36,3 +36,5 @@ if __name__=="__main__":
             log_dir,
             error_log,
         )
+
+        print(best_individuals)
