@@ -17,3 +17,13 @@ FILTER_RED   = (255, 0, 0)
 
 def merge_line_draws(img1, img2):
     return cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR) * FILTER_GREEN + cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR) * FILTER_RED
+
+def gen_random_angles(num):
+    """
+    Generates num random angles from 0 to pi
+    """
+
+    return np.linspace(0, np.pi, 5000,
+                       endpoint=False)[np.random.choice(range(5000),
+                                                        num,
+                                                        replace=False)]
