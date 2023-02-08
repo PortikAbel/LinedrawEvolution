@@ -19,21 +19,21 @@ if __name__=="__main__":
         image_shape
     )
 
-    log_dir = os.path.join(
-        output_dir,
-        image_name.split(".")[0],
-    )
-
-    os.makedirs(log_dir, exist_ok=True)
-    with open(os.path.join(log_dir, "error.csv"), "w") as error_log:
-
-        pop, best_individuals = run_genetic_algorithm_2(
-            population_size,
-            num_epochs,
-            line_count,
-            target,
-            log_dir,
-            error_log,
+    for i in range(10):
+        log_dir = os.path.join(
+            output_dir,
+            image_name.split(".")[0],
+            f"run_{i}"
         )
 
-        print(best_individuals)
+        os.makedirs(log_dir, exist_ok=True)
+        with open(os.path.join(log_dir, "error.csv"), "w") as error_log:
+        
+            pop, best_individuals = run_genetic_algorithm(
+                population_size,
+                num_epochs,
+                line_count,
+                target,
+                log_dir,
+                error_log,
+            )
