@@ -97,39 +97,43 @@ def run_genetic_algorithm_2(n, N, m, target_img, log_dir, error_log=sys.stdout.b
     best_individuals = []
     target_sparse = target_img_to_sparse(target_img)
 
-    in_line_len = (target_img.shape[0] + target_img.shape[1]) / 2 / 30
-    population = initialize_population(n, m, target_sparse, in_line_len, target_img)
+    in_line_length = (target_img.shape[0] + target_img.shape[1]) / 2 * config.line_ratio
+    population = initialize_population(n, m, target_sparse, in_line_length, target_img)
 
     i = 0
     while i < N:
         i += 1
-        print(i)
+        print(f"Epoch {i}")
         generation_dir = os.path.join(log_dir, f"gen_{i}")
         os.makedirs(generation_dir, exist_ok=True)
 
-        print('crossover_select')
+        # print(f"length of population before crossover {len(population)}")
 
         sorted_pop_ind = select_next_generation(population, n)
 
-        children = crossover_2(population, .8,
+        children = crossover_2(population, config.crossover_probability,
                                crossover_type=config.crossover_type,
                                selection_type=config.selection_type,
                                target=target_img,
+                               num_lines_to_crossover=config.num_lines_to_crossover,
                                sort_index=sorted_pop_ind)
 
         new_population = MList(population + children)
 
-        print('mutation_select')
+        # print(f"length of population before mutation {len(new_population)}")
 
         sorted_pop_ind = select_next_generation(new_population, len(new_population))
 
-        _ = mutation_2(new_population, .05,
+        children = mutation_2(new_population, config.mutation_probability,
                        mutation_type=config.mutation_type,
                        selection_type=config.selection_type,
-                       in_line_length=in_line_len,
+                       in_line_length=in_line_length,
+                       num_lines_to_mutate=config.num_lines_to_mutate,
                        sort_index=sorted_pop_ind)
 
-        print('new_pop_select')
+        # new_population = MList(new_population + children)
+
+        # print(f"length of population before next generation {len(new_population)}")
 
         sorted_pop_ind = select_next_generation(new_population, n)
 
@@ -137,15 +141,31 @@ def run_genetic_algorithm_2(n, N, m, target_img, log_dir, error_log=sys.stdout.b
 
         best_individuals.append(population[0])
 
+        print(f"Best chromosome in population fitness: {population[0].fitness()}")
+
         pts = Chromosome.genes_to_lines(population[0].origins, population[0].angles, population[0].lengths)
 
-        nimg = np.zeros(target_img.shape)
+        if i == N:
 
-        cv2.polylines(nimg, pts, False, 255)
+            fit_sc = population[0]._fitness_scores
+            p = fit_sc
+            p /= sum(p)
 
-        cv2.imshow("best individual", nimg)
+            print(f"Best chromosome fitness scores{fit_sc}")
 
-        cv2.waitKey(0)
+            print(f"{p[0]},{p[0] / (1 / len(p))}")
+
+            # nimg = target_img.copy()
+
+            nimg = np.zeros(target_img.shape)
+
+            # print(nimg)
+
+            cv2.polylines(nimg, pts, False, 60)
+
+            cv2.imshow("best individual", nimg)
+
+            cv2.waitKey(0)
 
         # np.save(
         #     os.path.join(generation_dir, f"offspring_gen_{i}.npy"),
@@ -166,10 +186,11 @@ def run_genetic_algorithm_2(n, N, m, target_img, log_dir, error_log=sys.stdout.b
         #     os.path.join(generation_dir, f"best_gen_{i}.npy"),
         #     up[best_idx],
         # )
-        # best_individuals.append(up[best_idx].copy())
+        #
         #
         # if error[best_idx] < epsilon:
         #     break
+
         # population = selection(up, error)
         # np.save(
         #     os.path.join(generation_dir, f"selection_gen_{i}.npy"),

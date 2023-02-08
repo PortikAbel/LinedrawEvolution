@@ -12,7 +12,9 @@ def selection(upspring, error):
 def select_next_generation(population, n):
     scores = np.asarray([chromosome.fitness() for chromosome in population])
 
-    return np.argsort(scores)[:n]
+    # print(np.sort(scores)[:n])
+
+    return np.argsort(scores)[-n:]
 
 
 def select_random(**kwargs):
@@ -22,7 +24,7 @@ def select_random(**kwargs):
     p: probablity of sampling
     """
 
-    return np.random.choice(range(kwargs['m']), size=int(kwargs['m'] * kwargs['p']), replace=False)
+    return np.random.choice(range(kwargs['m']), size=np.ceil(kwargs['m'] * kwargs['p']), replace=False)
 
 
 def select_elite(**kwargs):
@@ -33,9 +35,12 @@ def select_elite(**kwargs):
     sort_index: indices sorted by fitness
     """
 
-    m = int(kwargs['m'] * kwargs['p']) \
-        if int(kwargs['m'] * kwargs['p']) % 2 == 0 else \
-        int(kwargs['m'] * kwargs['p']) - 1
+    m = int(np.ceil(kwargs['m'] * kwargs['p']))
+
+    m += 0 if m % 2 == 0 else -1
+
+    if m < 1:
+        m = 1
 
     return kwargs['sort_index'][:m]
 
