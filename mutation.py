@@ -64,23 +64,47 @@ def non_uniform_mutation(chromosome, **kwargs):
     This function modifies either all angles or all lengths
     """
 
-    num_lines = chromosome.angles.shape[0]
+    num_lines = kwargs["num_lines_to_mutate"]
+
+    assert chromosome.angles.shape[0] >= num_lines > 0
+
+    p = 1 - chromosome._fitness_scores
+    p /= sum(p)
+
+    indices = np.random.choice(range(chromosome.angles.shape[0]),
+                               num_lines,
+                               replace=False,
+                               p=p)
+
+    new_chromosome = chromosome
 
     prob = np.random.rand()
 
-    if prob < .5:
+    p = chromosome._fitness_scores
+    p /= sum(p)
 
-        # offset angles by 0.5 degrees, then clip to [0, pi)
+    if prob < p[indices][0] / 1 / len(p):
+
+        # offset angles by 5 degrees, then clip to [0, pi)
         angles_sample = np.random.choice([-1, 1], num_lines) * 0.00872665
-        chromosome.angles = np.clip(chromosome.angles + angles_sample, 0, np.pi - 1.e-6)
+        # new_chromosome.angles[indices] = np.clip(chromosome.angles[indices] + angles_sample, 0, np.pi - 1.e-6)
+        new_chromosome.angles[indices] = chromosome.angles[indices] + angles_sample
 
     else:
 
-        # slightly increase or decrease line length
-        lengths_sample = np.random.randint(-10, 11, num_lines)
-        chromosome.lengths += lengths_sample
+        angles_sample = np.random.choice([-1, 1], num_lines) * 1.57
+        # new_chromosome.angles[indices] = np.clip(chromosome.angles[indices] + angles_sample, 0, np.pi - 1.e-6)
+        new_chromosome.angles[indices] = chromosome.angles[indices] + angles_sample
 
-    return chromosome
+        # # slightly increase or decrease line length
+        # lengths_sample = np.random.randint(-10, 11, num_lines)
+        # chromosome.lengths[indices] += lengths_sample
+
+    new_chromosome._modified[indices] = True
+
+    # print(f"Modified lines {indices}")
+
+    return new_chromosome
 
 
 def uniform_mutation(chromosome, **kwargs):
@@ -129,4 +153,4 @@ def mutation_2(population, p, mutation_type, selection_type, **kwargs):
 
     mutated_population = MList([mutation_types[mutation_type](xi, **kwargs) for xi in population[subset]])
 
-    return mutated_population, subset
+    return mutated_population

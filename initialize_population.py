@@ -14,6 +14,8 @@ class MList(list):
 
     def __getitem__(self, indices):
         if isinstance(indices, np.ndarray):
+            if indices.shape[0] == 1:
+                return MList([itemgetter(*indices)(self)])
             return MList(itemgetter(*indices)(self))
         else:
             return super(MList, self).__getitem__(indices)
@@ -108,8 +110,10 @@ def initialize_population(pop_size, num_lines, line_origins, in_line_length, tar
 
     population = MList([])
 
+    origins_sample = line_origins[np.random.choice(range(len(line_origins)), num_lines, replace=False)]
+
     for _ in range(pop_size):
-        origins_sample = line_origins[np.random.choice(range(len(line_origins)), num_lines, replace=False)]
+        # origins_sample = line_origins[np.random.choice(range(len(line_origins)), num_lines, replace=False)]
 
         angles_sample = gen_random_angles(num_lines)
 

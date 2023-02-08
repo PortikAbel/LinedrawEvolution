@@ -10,15 +10,47 @@ class Chromosome:
         self.angles = angles
         self.lengths = lengths
         self.target = target
-        self._fitness_scores = np.zeros(self.origins.shape[0])
-        self._modified = np.ones(self.origins.shape[0]).astype(bool)
+
+        if "fitness_scores" in kwargs.keys():
+            assert isinstance(kwargs["fitness_scores"], np.ndarray)
+
+            self._fitness_scores = kwargs["fitness_scores"]
+        else:
+            self._fitness_scores = np.zeros(self.origins.shape[0])
+
+        if "modified" in kwargs.keys():
+            assert isinstance(kwargs["modified"], np.ndarray)
+
+            self._modified = kwargs["modified"]
+        else:
+            self._modified = np.ones(self.origins.shape[0]).astype(bool)
+
+        # if "fitness" in kwargs.keys():
+        #     assert isinstance(kwargs["fitness"], np.ndarray)
+        #
+        #     self._fitness = kwargs["fitness"]
+        # else:
         self._fitness = None
-        self._lines = self.genes_to_lines(self.origins, self.angles, self.lengths)
+
+        if "lines" in kwargs.keys():
+            assert isinstance(kwargs["lines"], np.ndarray)
+
+            self._lines = kwargs["lines"]
+        else:
+            self._lines = self.genes_to_lines(self.origins, self.angles, self.lengths)
+
+    def copy(self):
+
+        return Chromosome(origins=self.origins.copy(), angles=self.angles.copy(), lengths=self.lengths.copy(),
+                          target=self.target, fitness_scores=self._fitness_scores.copy(),
+                          modified=self._modified.copy(), lines=self._lines.copy())
 
     def fitness(self) -> float:
         if self._modified.any():
             self._calc_fitness_scores()
-            self._fitness = self._fitness_scores.sum()
+
+        self._fitness = self._fitness_scores.sum()
+        # print(f"Fitness score {self._fitness}")
         return self._fitness
 
     def _calc_fitness_scores(self) -> np.ndarray:
@@ -35,11 +67,14 @@ class Chromosome:
         scores = []
 
         for i, line in enumerate(modified_lines):
+            # print(f"Calculating score for {line}th line")
             scores.append(self.line_score(line, self.target))
 
         self._fitness_scores[self._modified] = np.asarray(scores)
 
-        # self._modified = np.zeros(self.origins.shape[0]).astype(bool)
+        self._lines[self._modified] = modified_lines
+
+        self._modified = np.zeros(self.origins.shape[0]).astype(bool)
 
     @staticmethod
     def line_score(line, target):
