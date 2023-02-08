@@ -118,24 +118,54 @@ def run_genetic_algorithm_2(n, N, m, target_img, log_dir, error_log=sys.stdout.b
                                sort_index=sorted_pop_ind)
 
         new_population = MList(population + children)
+        
 
         print('mutation_select')
 
         sorted_pop_ind = select_next_generation(new_population, len(new_population))
 
-        _ = mutation_2(new_population, .05,
+        _ = mutation_2(new_population, 1,
                        mutation_type=config.mutation_type,
                        selection_type=config.selection_type,
                        in_line_length=in_line_len,
                        sort_index=sorted_pop_ind)
+        
+        
+        up = [Chromosome.genes_to_lines(x.origins, x.angles, x.lengths) for x in new_population]
 
-        print('new_pop_select')
+        np.save(
+            os.path.join(generation_dir, f"offspring_gen_{i}.npy"),
+            up,
+        )
+
+        error = np.asarray([chromosome.fitness() for chromosome in new_population])
+        np.savetxt(
+            error_log,
+            error.reshape(1, error.shape[0]),
+            delimiter=";",
+            fmt="%.10f",
+        )
+        error_log.flush()
+        
+        best_idx = error.argmin()
+        np.save(
+            os.path.join(generation_dir, f"best_gen_{i}.npy"),
+            up[best_idx],
+        )
+        
+        if error[best_idx] < epsilon:
+            break
+
 
         sorted_pop_ind = select_next_generation(new_population, n)
-
         population = new_population[sorted_pop_ind]
-
         best_individuals.append(population[0])
+        population_old_repr = [Chromosome.genes_to_lines(x.origins, x.angles, x.lengths) for x in population]
+
+        np.save(
+            os.path.join(generation_dir, f"selection_gen_{i}.npy"),
+            population_old_repr,
+        )
 
         pts = Chromosome.genes_to_lines(population[0].origins, population[0].angles, population[0].lengths)
 
@@ -146,34 +176,5 @@ def run_genetic_algorithm_2(n, N, m, target_img, log_dir, error_log=sys.stdout.b
         cv2.imshow("best individual", nimg)
 
         cv2.waitKey(0)
-
-        # np.save(
-        #     os.path.join(generation_dir, f"offspring_gen_{i}.npy"),
-        #     up,
-        # )
-
-        # error = fitness(up, target_img)
-        # np.savetxt(
-        #     error_log,
-        #     error.reshape(1, error.shape[0]),
-        #     delimiter=";",
-        #     fmt="%.10f",
-        # )
-        # error_log.flush()
-        #
-        # best_idx = error.argmin()
-        # np.save(
-        #     os.path.join(generation_dir, f"best_gen_{i}.npy"),
-        #     up[best_idx],
-        # )
-        # best_individuals.append(up[best_idx].copy())
-        #
-        # if error[best_idx] < epsilon:
-        #     break
-        # population = selection(up, error)
-        # np.save(
-        #     os.path.join(generation_dir, f"selection_gen_{i}.npy"),
-        #     population,
-        # )
 
     return population, best_individuals

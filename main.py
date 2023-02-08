@@ -14,7 +14,6 @@ from util import black_white_img_to_line_draw
 
 
 if __name__=="__main__":
-
     target = black_white_img_to_line_draw(
         os.path.join(input_dir, image_name),
         image_shape
